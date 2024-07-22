@@ -1,0 +1,26 @@
+{% load static %}
+{% load compress %}
+
+<!DOCTYPE html>
+<html lang="{{ html_language }}">
+
+<head>
+
+{% include "pages/head.html" %}
+
+
+{% compress css %}
+<link rel="stylesheet" href="{% static 'css/projeto-ui.css' %}">
+{% endcompress %}
+
+</head>
+
+<body class="bg-green-50"> 
+    {% include "pages/navbar.html" %}       
+    {% include "pages/formEstufa.html" %}
+    {% include "pages/table.html" %}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script>
+</body>
+
+</html>

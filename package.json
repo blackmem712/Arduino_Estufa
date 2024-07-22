@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "dev": "tailwindcss -i Projeto/static/custom/tw/tailwind-input.css -o Projeto/static/css/projeto-ui.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.2.4"
+  },
+  "dependencies": {
+    "flowbite": "^2.4.1"
+  }
+}
