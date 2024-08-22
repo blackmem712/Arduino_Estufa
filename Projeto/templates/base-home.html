@@ -11,14 +11,113 @@
 
 {% compress css %}
 <link rel="stylesheet" href="{% static 'css/projeto-ui.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endcompress %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script> <!-- Inclua o adaptador aqui -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@latest/dist/chartjs-plugin-streaming.min.js"></script>
 
 </head>
 
 <body class="bg-green-50"> 
-    {% include "pages/navbar.html" %}       
-   
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script>
-</body>
+    
+    {% include "pages/navbar.html" %}
+    <div class="p-6 sm:ml-64 mb-330 pt-36 sm:pt-44 md:pt-56 bg-teal-100 relative">
+        <div class="absolute inset-x-0 top-0 sm:top-4 md:top-8 lg:top-12 text-center sm:text-left px-4 sm:px-6 md:px-8 lg:px-10 z-10">
+            <h1 class="text-2xl font-bold text-teal-300 dark:text-white tracking-tight leading-tight sm:text-2xl md:text-5xl gradient-text">
+                DADOS DE TEMPERATURA E UMIDADE
+            </h1>
+    
+            <div class="mt-4 text-lg text-teal-700 dark:text-teal-200 space-y-2">
+                <p>
+                    <span class="font-semibold">Temperatura:</span>
+                    <span id="temperatura" class="font-mono text-teal-900 dark:text-teal-400"></span> °C
+                </p>
+                <p>
+                    <span class="font-semibold">Umidade:</span>
+                    <span id="umidade" class="font-mono text-teal-900 dark:text-teal-400"></span> %
+                </p>
+                <p>
+                    <span class="font-semibold">Timestamp:</span>
+                    <span id="timestamp" class="font-mono text-teal-900 dark:text-teal-400"></span>
+                </p>
+            </div>
+        </div>
+    
+        <!-- Gráfico -->
+        <canvas class="w-full h-[20rem] sm:h-[40rem] md:h-[50rem] lg:h-[50rem]" id="sensorChart" width="400" height="200"></canvas>
+    </div>
+    
+        <script>
 
+            // Dados recebidos do Django
+            
+            // Configuração do Chart.js
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            const sensorChart = new Chart(ctx, {
+                type: 'line', // Tipo do gráfico
+                data: {
+                    labels: ['{{ timestamp }}'], // Eixo X - Timestamps
+                    datasets: [
+                        {
+                            label: 'Umidade (%)', 
+                            data: [{{ umidade }}], //Dados de umidade 
+                            borderColor: 'rgb(75, 192, 192)',
+                            fill: false
+                        },
+                        {
+                            label: 'Temperatura (°C)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            data: [{{ temperatura }}], // Dados de temperatura
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+                
+            }); 
+              // Função para atualizar o gráfico com novos dados a cada 10 segundos
+        function updateChart() {
+            fetch('http://127.0.0.1:8000/get-latest-data/')  // Altere essa URL conforme necessário
+                .then(response => response.json())
+                .then(data => {
+                    // Adiciona os novos dados ao gráfico
+                    sensorChart.data.labels.push(data.timestamp);
+                    sensorChart.data.datasets[0].data.push(data.umidade);
+                    sensorChart.data.datasets[1].data.push(data.temperatura);
+                    document.getElementById('temperatura').textContent = data.temperatura;
+                    document.getElementById('umidade').textContent = data.umidade;
+                    document.getElementById('timestamp').textContent = data.timestamp;
+                    // Atualiza o gráfico
+                    sensorChart.update();
+                });
+        }
+
+        // Atualiza o gráfico a cada 10 segundos
+        setInterval(updateChart, 10000);
+          
+    
+           
+          
+
+           
+            sensorChart.update();
+    
+            // Exemplo de como você poderia atualizar o gráfico com novos dados (aqui é apenas um exemplo estático)
+            // updateChart('2024-07-01 12:34:56', 55, 28);
+        </script>
+   
+    </div>      
+ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script>
+    
 </html>

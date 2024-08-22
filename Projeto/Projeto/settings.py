@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'estufa',
     'compressor',
+    'channels'
 ]
 
 MIDDLEWARE = [

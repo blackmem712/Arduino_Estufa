@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Estufa
+from .models import Estufa, SensorData
 from django.contrib import messages
 from django.shortcuts import render
 from django.core.cache import cache
@@ -19,12 +19,22 @@ def estufa(request):
         if umidade is not None and temperatura is not None:
             print(f"Umidade recebida: {umidade}%")
             print(f"Temperatura recebida: {temperatura}°C")
+
+            umidade = int(float(umidade))
+            temperatura = int(float(temperatura))
+
             # Aqui você pode processar os dados ou salvá-los no banco de dados
+
+            SensorData.objects.create(umidade=umidade, temperatura=temperatura)
+
+           
 
             # Renderizar a página com os novos dados
             estufa_list = Estufa.objects.all()
             return render(request, 'home.html', {
                 'estufas': estufa_list,
+
+                
                 'umidade_atual': umidade,
                 'temperatura_atual': temperatura,
             })
@@ -55,3 +65,21 @@ def processa_form(request):
             messages.error(request, 'Todos os campos são obrigatórios.')
 
     return render(request, 'home.html')
+
+def get_latest_data(request):
+    # Obtenha os dados mais recentes do banco de dados
+    latest_data = SensorData.objects.latest('timestamp')
+
+    umidade = int(latest_data.umidade) if latest_data.umidade.is_integer() else float(latest_data.umidade)
+    temperatura = int(latest_data.temperatura) if latest_data.temperatura.is_integer() else float(latest_data.temperatura)
+    
+    data = {
+        'umidade': umidade,
+        'temperatura': temperatura,
+        'timestamp': latest_data.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    # Renderize o template e passe os dados como contexto
+    return  JsonResponse(data)
+
+def dashboard(request):
+     return render(request, 'dashboard.html')

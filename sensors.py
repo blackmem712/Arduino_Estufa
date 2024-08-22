@@ -2,6 +2,18 @@ from pyfirmata import Arduino, util
 import time
 import requests
 
+
+API_KEY ="58a963650ffd1e7ea4fef3e9ff6862e3"
+cidade = "Ji-paraná"
+link = f"https://api.openweathermap.org/data/2.5/weather?q={cidade}&appid={API_KEY}&lang=pt_br"
+
+requesicao = requests.get(link)
+requesicao_dic = requesicao.json()
+descricao = requesicao_dic['weather'][0]['description']
+
+print(descricao)
+
+
 URL = 'http://127.0.0.1:8000/estufa/'
 PORTA = 'COM3'  # Substitua pela sua porta serial
 try:
@@ -44,7 +56,7 @@ def ler_temperatura():
     return None
 
 def controlar_rele(umidade, temperatura):
-    if umidade < 50 and temperatura > 10:
+    if umidade < 50 and temperatura > 10 and descricao == 'céu limpo' :
         RELE_PIN.write(1)
         print("Relé ligado.")
         return True
@@ -83,3 +95,5 @@ def loop_principal():
 
 if __name__ == "__main__":
     loop_principal()
+
+
